@@ -88,7 +88,7 @@
             font-weight: bold;
         }
 
-        /* 핵심 능력 상자 스타일 (새로 추가) */
+        /* 핵심 능력 상자 스타일 */
         .ability-card {
             display: flex;
             flex-direction: column;
@@ -118,6 +118,43 @@
         .ability-card .emoji {
             font-size: 2.25rem; /* text-3xl */
             margin-bottom: 0.25rem; /* mb-1 */
+        }
+
+        /* 능력 상세 모달 스타일 (재정의) */
+        .ability-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top of everything */
+            -webkit-overflow-scrolling: touch; /* iOS Safari smooth scrolling */
+            overflow-y: auto; /* Enable scrolling for long content */
+        }
+
+        .ability-detail-modal-content {
+            background-color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            max-width: 36rem; /* main-content-container와 동일한 너비 */
+            width: 90%; /* 모바일에서 꽉 차게 보이도록 */
+            max-height: 90vh; /* 화면 높이의 90% */
+            overflow-y: auto; /* 내용이 길면 스크롤 가능 */
+            padding: 1.5rem; /* p-6 */
+            position: relative; /* 닫기 버튼 위치 지정용 */
+        }
+
+        /* 스크롤바 숨기기 (모달 내에서) */
+        .ability-detail-modal-content::-webkit-scrollbar {
+            display: none;
+        }
+        .ability-detail-modal-content {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
     </style>
 </head>
@@ -220,22 +257,6 @@
             </div>
         </main>
 
-        <!-- Ability Detail Section (Hidden by default, acts like a tab) -->
-        <section id="abilityDetailSection" class="bg-white my-4 rounded-lg mx-2 p-4 shadow-sm w-full hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="career-section-title mb-0" id="abilityDetailTitle"></h3>
-                <button id="closeAbilityDetail" class="text-gray-500 hover:text-gray-800 text-xl font-bold py-1 px-3 rounded-full hover:bg-gray-100">&times; 닫기</button>
-            </div>
-            <div id="abilityDetailContent" class="text-gray-700 text-base leading-relaxed space-y-3">
-                <!-- Detailed ability info will be loaded here -->
-            </div>
-            <div id="abilityLoading" class="flex justify-center items-center py-4 hidden">
-                <div class="loader mr-3"></div>
-                <p class="text-gray-500">정보를 불러오는 중...</p>
-            </div>
-        </section>
-
-
         <!-- Footer Section - Consistent with Naver clone -->
         <footer class="bg-white mt-2 p-4 text-center text-xs text-gray-500 border-t border-gray-100 rounded-t-lg w-full">
             <p class="mb-2">
@@ -249,6 +270,23 @@
             </p>
             <p>&copy; NMATE Career. All rights reserved.</p>
         </footer>
+    </div>
+
+    <!-- Ability Detail Modal/Section (Hidden by default) -->
+    <div id="abilityDetailModal" class="ability-detail-modal hidden">
+        <div class="ability-detail-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="career-section-title mb-0" id="abilityDetailTitle"></h4>
+                <button id="closeAbilityDetail" class="text-gray-500 hover:text-gray-800 text-xl font-bold py-1 px-3 rounded-full hover:bg-gray-100">&times; 닫기</button>
+            </div>
+            <div id="abilityDetailContent" class="text-gray-700 text-base leading-relaxed space-y-3">
+                <!-- Detailed ability info will be loaded here -->
+            </div>
+            <div id="abilityLoading" class="flex justify-center items-center py-4 hidden">
+                <div class="loader mr-3"></div>
+                <p class="text-gray-500">정보를 불러오는 중...</p>
+            </div>
+        </div>
     </div>
 
 
@@ -273,8 +311,8 @@
             const relatedJobsElem = document.getElementById('relatedJobs');
             const keyAbilitiesContainer = document.getElementById('keyAbilitiesContainer'); 
             
-            // Ability Detail Section elements
-            const abilityDetailSection = document.getElementById('abilityDetailSection');
+            // Ability Detail Modal elements
+            const abilityDetailModal = document.getElementById('abilityDetailModal');
             const abilityDetailTitle = document.getElementById('abilityDetailTitle');
             const abilityDetailContent = document.getElementById('abilityDetailContent');
             const abilityLoading = document.getElementById('abilityLoading');
@@ -309,13 +347,24 @@
                 }
             });
 
-            // "닫기" 버튼 클릭 시 능력 상세 정보 섹션 숨기기
+            // "닫기" 버튼 클릭 시 능력 상세 모달 숨기기
             closeAbilityDetailButton.addEventListener('click', () => {
-                abilityDetailSection.classList.add('hidden');
-                // 활성화된 카드 초기화
+                abilityDetailModal.classList.add('hidden');
+                // 활성화된 카드 스타일 제거
                 if (currentActiveAbilityCard) {
                     currentActiveAbilityCard.classList.remove('active');
                     currentActiveAbilityCard = null;
+                }
+            });
+
+            // 모달 외부 클릭 시 닫기
+            abilityDetailModal.addEventListener('click', (e) => {
+                if (e.target === abilityDetailModal) {
+                    abilityDetailModal.classList.add('hidden');
+                    if (currentActiveAbilityCard) {
+                        currentActiveAbilityCard.classList.remove('active');
+                        currentActiveAbilityCard = null;
+                    }
                 }
             });
 
@@ -327,7 +376,7 @@
                 loadingIndicator.classList.remove('hidden'); // 로딩 스피너 표시
                 careerDetailsDiv.classList.add('hidden'); // 기존 결과 숨김
                 noResultsDiv.classList.add('hidden'); // 결과 없음 숨김
-                abilityDetailSection.classList.add('hidden'); // 능력 상세 정보 섹션 숨김
+                abilityDetailModal.classList.add('hidden'); // 능력 상세 모달 숨김
 
                 try {
                     const prompt = `Provide detailed career information for '${query}' including career name, job description, average salary, advantages, disadvantages, required skills, future outlook, related jobs, and key abilities. Format the response as a JSON object. Ensure all fields are present. For array fields, provide at least 2-3 items if applicable. If information is not available, state "정보 없음". Average salary should include currency and context (e.g., "대한민국 기준 연 5,000만원"). For key abilities, provide a list of abilities and for each ability, suggest a simple, relevant emoji. For example: [{"ability": "수리/논리력", "emoji": "🧠"}, {"ability": "의사소통 능력", "emoji": "🗣️"}].`;
@@ -454,7 +503,7 @@
                                 <span class="emoji">${abilityItem.emoji}</span>
                                 <span>${abilityItem.ability}</span>
                             `;
-                            // 클릭 시 상세 정보 탭 표시
+                            // 클릭 시 상세 정보 모달 표시
                             abilityCard.addEventListener('click', (event) => {
                                 // 기존 활성화 카드 스타일 제거
                                 if (currentActiveAbilityCard) {
@@ -464,7 +513,7 @@
                                 event.currentTarget.classList.add('active');
                                 currentActiveAbilityCard = event.currentTarget;
 
-                                showAbilityDetailsTab(abilityItem.ability);
+                                showAbilityDetailsModal(abilityItem.ability);
                             });
                             keyAbilitiesContainer.appendChild(abilityCard);
                         });
@@ -481,17 +530,14 @@
             }
 
             /**
-             * Shows a section with detailed information about a specific ability.
+             * Shows a modal with detailed information about a specific ability.
              * @param {string} abilityName The name of the ability to fetch details for.
              */
-            async function showAbilityDetailsTab(abilityName) {
+            async function showAbilityDetailsModal(abilityName) {
                 abilityDetailTitle.textContent = abilityName;
                 abilityDetailContent.innerHTML = ''; // Clear previous content
                 abilityLoading.classList.remove('hidden'); // Show loading
-                abilityDetailSection.classList.remove('hidden'); // Show the ability detail section
-
-                // 스크롤을 능력 상세 정보 섹션으로 이동
-                abilityDetailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                abilityDetailModal.classList.remove('hidden'); // Show the ability detail modal
 
                 try {
                     const prompt = `Provide detailed information about the skill '${abilityName}' for career guidance. Include: 1. Description of the skill. 2. Why it is important. 3. How it can be developed. Format the response as a JSON object with keys: "description", "importance", "developmentMethods". If information is not available, state "정보 없음".`;
