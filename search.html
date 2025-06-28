@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f2f4f7;
+            background-color: #ffffff; /* PC에서도 모바일과 동일한 UI를 위해 배경색을 흰색으로 변경 */
             color: #333;
         }
         .nmate-green {
@@ -18,6 +18,19 @@
         }
         .text-nmate-dark-gray {
             color: #666;
+        }
+        /* 로딩 스피너 스타일 */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #03c75a;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -46,18 +59,54 @@
         <!-- Search Results Section -->
         <main class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm">
             <h2 class="text-lg font-semibold mb-4">"<span id="currentSearchQuery" class="nmate-green"></span>" 검색 결과</h2>
-            <div id="searchResults" class="space-y-4">
-                <!-- Placeholder for search results -->
-                <p class="text-nmate-dark-gray">아직 검색 기능이 완전히 구현되지 않았습니다. 실제 검색 결과는 여기에 표시됩니다.</p>
-                <div class="border p-3 rounded-lg bg-gray-50">
-                    <h3 class="font-medium text-base mb-1">프론트엔드 개발자</h3>
-                    <p class="text-sm text-gray-700">웹사이트의 사용자 인터페이스를 구축하고 기능을 구현하는 전문가입니다.</p>
-                    <a href="#" class="text-sm nmate-green mt-2 block">자세히 보기 ></a>
+            <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
+                <div class="loader mr-3"></div>
+                <p class="text-gray-500">정보를 불러오는 중...</p>
+            </div>
+            <div id="searchResults" class="space-y-6">
+                <!-- AI-generated career details will be injected here -->
+                <div id="careerDetails" class="hidden">
+                    <h3 class="text-xl font-bold mb-3" id="careerName"></h3>
+
+                    <div class="mb-4">
+                        <p class="text-sm font-semibold mb-1">직업 설명:</p>
+                        <p class="text-gray-700 text-sm leading-relaxed" id="description"></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm font-semibold mb-1">평균 연봉:</p>
+                            <p class="text-gray-700 text-sm" id="averageSalary"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold mb-1">미래 전망:</p>
+                            <p class="text-gray-700 text-sm" id="futureOutlook"></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-sm font-semibold mb-1">장점:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="advantages"></ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-sm font-semibold mb-1">단점:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="disadvantages"></ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-sm font-semibold mb-1">필요 역량:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="requiredSkills"></ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-sm font-semibold mb-1">관련 직업:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="relatedJobs"></ul>
+                    </div>
                 </div>
-                <div class="border p-3 rounded-lg bg-gray-50">
-                    <h3 class="font-medium text-base mb-1">데이터 분석가</h3>
-                    <p class="text-sm text-gray-700">다양한 데이터를 수집, 분석하여 유의미한 정보를 도출하고 비즈니스 의사결정을 지원합니다.</p>
-                    <a href="#" class="text-sm nmate-green mt-2 block">자세히 보기 ></a>
+
+                <div id="noResults" class="hidden text-center py-8">
+                    <p class="text-gray-500">검색 결과가 없습니다. 다른 검색어를 시도해 보세요.</p>
                 </div>
             </div>
         </main>
@@ -78,21 +127,36 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
             const currentSearchQueryElement = document.getElementById('currentSearchQuery');
             const searchResultInput = document.getElementById('searchResultInput');
             const searchResultButton = document.getElementById('searchResultButton');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const careerDetailsDiv = document.getElementById('careerDetails');
+            const noResultsDiv = document.getElementById('noResults');
 
+            const careerNameElem = document.getElementById('careerName');
+            const descriptionElem = document.getElementById('description');
+            const averageSalaryElem = document.getElementById('averageSalary');
+            const advantagesElem = document.getElementById('advantages');
+            const disadvantagesElem = document.getElementById('disadvantages');
+            const requiredSkillsElem = document.getElementById('requiredSkills');
+            const futureOutlookElem = document.getElementById('futureOutlook');
+            const relatedJobsElem = document.getElementById('relatedJobs');
+
+            // 검색어 설정 및 입력 필드 업데이트
             if (query) {
                 currentSearchQueryElement.textContent = decodeURIComponent(query);
-                searchResultInput.value = decodeURIComponent(query); // Set input value to current query
+                searchResultInput.value = decodeURIComponent(query);
+                await fetchCareerDetails(query); // 검색어 기반으로 직업 정보 요청
             } else {
                 currentSearchQueryElement.textContent = '검색어를 입력해주세요';
+                noResultsDiv.classList.remove('hidden'); // 검색어 없으면 결과 없음 표시
             }
 
-            // Function to handle search from search results page
+            // 검색 버튼 클릭 이벤트 핸들러
             const performSearch = () => {
                 const newQuery = searchResultInput.value.trim();
                 if (newQuery) {
@@ -100,15 +164,132 @@
                 }
             };
 
-            // Event listener for the search button click on search results page
             searchResultButton.addEventListener('click', performSearch);
 
-            // Event listener for 'Enter' key press in the search input on search results page
+            // 검색 입력 필드에서 Enter 키 이벤트 핸들러
             searchResultInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
                     performSearch();
                 }
             });
+
+            /**
+             * Gemini API를 호출하여 직업 세부 정보를 가져옵니다.
+             * @param {string} query 사용자의 검색어
+             */
+            async function fetchCareerDetails(query) {
+                loadingIndicator.classList.remove('hidden'); // 로딩 스피너 표시
+                careerDetailsDiv.classList.add('hidden'); // 기존 결과 숨김
+                noResultsDiv.classList.add('hidden'); // 결과 없음 숨김
+
+                try {
+                    const prompt = `Provide detailed career information for '${query}' including career name, job description, average salary, advantages, disadvantages, required skills, future outlook, and related jobs. Format the response as a JSON object. Ensure all fields are present. For array fields, provide at least 2-3 items if applicable. If information is not available, state "정보 없음". Average salary should include currency and context (e.g., "대한민국 기준 연 5,000만원").`;
+
+                    const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                    const payload = {
+                        contents: chatHistory,
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    "careerName": { "type": "STRING" },
+                                    "description": { "type": "STRING" },
+                                    "averageSalary": { "type": "STRING" },
+                                    "advantages": {
+                                        "type": "ARRAY",
+                                        "items": { "type": "STRING" }
+                                    },
+                                    "disadvantages": {
+                                        "type": "ARRAY",
+                                        "items": { "type": "STRING" }
+                                    },
+                                    "requiredSkills": {
+                                        "type": "ARRAY",
+                                        "items": { "type": "STRING" }
+                                    },
+                                    "futureOutlook": { "type": "STRING" },
+                                    "relatedJobs": {
+                                        "type": "ARRAY",
+                                        "items": { "type": "STRING" }
+                                    }
+                                },
+                                "propertyOrdering": [
+                                    "careerName", "description", "averageSalary", "advantages", "disadvantages",
+                                    "requiredSkills", "futureOutlook", "relatedJobs"
+                                ]
+                            }
+                        }
+                    };
+
+                    const apiKey = ""; // API 키는 Canvas 런타임에서 자동으로 제공됩니다.
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    console.log("Gemini API Response:", result);
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const jsonString = result.candidates[0].content.parts[0].text;
+                        const careerData = JSON.parse(jsonString);
+                        displayCareerDetails(careerData);
+                    } else {
+                        console.error("Gemini API 응답 구조가 예상과 다릅니다.", result);
+                        noResultsDiv.classList.remove('hidden'); // 결과 없음 표시
+                    }
+
+                } catch (error) {
+                    console.error("직업 정보를 불러오는 중 오류 발생:", error);
+                    noResultsDiv.classList.remove('hidden'); // 오류 시 결과 없음 표시
+                } finally {
+                    loadingIndicator.classList.add('hidden'); // 로딩 스피너 숨김
+                }
+            }
+
+            /**
+             * 가져온 직업 정보를 HTML에 표시합니다.
+             * @param {object} data 직업 정보 데이터
+             */
+            function displayCareerDetails(data) {
+                if (data && data.careerName) {
+                    careerNameElem.textContent = data.careerName || '정보 없음';
+                    descriptionElem.textContent = data.description || '정보 없음';
+                    averageSalaryElem.textContent = data.averageSalary || '정보 없음';
+                    futureOutlookElem.textContent = data.futureOutlook || '정보 없음';
+
+                    // 리스트 아이템 동적 생성 함수
+                    const populateList = (element, items) => {
+                        element.innerHTML = ''; // 기존 내용 지우기
+                        if (items && items.length > 0) {
+                            items.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = item;
+                                element.appendChild(li);
+                            });
+                        } else {
+                            const li = document.createElement('li');
+                            li.textContent = '정보 없음';
+                            element.appendChild(li);
+                        }
+                    };
+
+                    populateList(advantagesElem, data.advantages);
+                    populateList(disadvantagesElem, data.disadvantages);
+                    populateList(requiredSkillsElem, data.requiredSkills);
+                    populateList(relatedJobsElem, data.relatedJobs);
+
+                    careerDetailsDiv.classList.remove('hidden'); // 직업 세부 정보 표시
+                } else {
+                    noResultsDiv.classList.remove('hidden'); // 데이터 없으면 결과 없음 표시
+                }
+            }
         });
     </script>
 </body>
