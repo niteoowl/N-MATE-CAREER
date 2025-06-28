@@ -299,7 +299,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
             const currentSearchQueryElement = document.getElementById('currentSearchQuery');
-            const searchResultInput = document.getElementById('searchResultInput');
+            const searchResultInput = document.getElementById('searchResultInput'); // Corrected variable name
             const searchResultButton = document.getElementById('searchResultButton');
             const loadingIndicator = document.getElementById('loadingIndicator');
             const careerDetailsDiv = document.getElementById('careerDetails');
@@ -348,8 +348,8 @@
 
             searchResultButton.addEventListener('click', performSearch);
 
-            // 검색 입력 필드에서 Enter 키 이벤트 핸들러
-            searchInput.addEventListener('keypress', (event) => {
+            // 검색 입력 필드에서 Enter 키 이벤트 핸들러 (searchInput -> searchResultInput으로 수정)
+            searchResultInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
                     performSearch();
                 }
