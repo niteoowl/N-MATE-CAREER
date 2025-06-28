@@ -10,14 +10,14 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // Firestore is not directly needed for this authentication, but included for completeness if db operations are added later.
+        import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase 설정 (사용자 제공)
+        // 실제 배포 환경에서는 이 설정이 nmate.kr과 career.nmate.kr 모두에서 동일하게 사용되어야 합니다.
         const firebaseConfig = {
             apiKey: "AIzaSyC_SHRcQ9hXmjVbP3km4rdR4UvKIoqpLHo",
-            authDomain: "n-mate.firebaseapp.com",
+            authDomain: "n-mate.firebaseapp.com", // Firebase 프로젝트의 인증 도메인
             projectId: "n-mate",
             storageBucket: "n-mate.firebasestorage.app",
             messagingSenderId: "691313471077",
@@ -28,46 +28,88 @@
         // Firebase 앱 초기화
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app); // Initialize Firestore as well
+        const db = getFirestore(app);
 
-        // 전역 변수로 auth, db 인스턴스 노출 (스크립트 태그 내 다른 스크립트에서 사용 가능하도록)
+        // 전역 변수로 auth, db 인스턴스 노출
         window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDb = db;
 
-        // 초기 인증 토큰을 사용하여 로그인
-        // Canvas 환경에서 __initial_auth_token이 제공될 수 있음
+        // Canvas 환경에서 __initial_auth_token이 제공될 경우 로그인 시도
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         if (initialAuthToken) {
             signInWithCustomToken(auth, initialAuthToken)
                 .then((userCredential) => {
-                    console.log("Firebase custom token login successful:", userCredential.user.uid);
-                    // 인증 상태 변경 리스너는 auth.currentUser를 통해 최신 사용자 정보를 제공합니다.
+                    console.log("Firebase custom token login successful (Canvas env):", userCredential.user.uid);
                 })
                 .catch((error) => {
-                    console.error("Firebase custom token login failed:", error.message);
+                    console.error("Firebase custom token login failed (Canvas env):", error.message);
                 });
-        } else {
-            console.log("No initial auth token provided. User might be unauthenticated.");
         }
 
-        // 인증 상태 변경 감지
+        // 인증 상태 변경 감지 및 UI 업데이트
         onAuthStateChanged(auth, (user) => {
+            const loginButton = document.getElementById('loginButton');
+            const authInfoSpan = document.getElementById('authInfo'); // 추가된 인증 정보 표시 span
+            const authContainer = document.getElementById('authContainer'); // 로그인/로그아웃 버튼을 감싸는 컨테이너
+
             if (user) {
-                console.log("User is signed in:", user.uid);
-                // 여기에 인증된 사용자 UI 업데이트 로직 추가 가능
-                // 예: 로그인 버튼을 로그아웃 버튼으로 변경
+                // 사용자가 로그인됨
+                console.log("User is signed in:", user.uid, user.email);
+                if (loginButton) {
+                    loginButton.textContent = '로그아웃';
+                    loginButton.onclick = async () => {
+                        try {
+                            await signOut(auth);
+                            alert('로그아웃되었습니다.'); // 사용자에게 알림 (경고창 대신 메시지 박스 사용 권장)
+                            // 로그아웃 후 로그인 페이지로 리디렉션하거나 홈페이지로 이동
+                             window.location.href = 'https://nmate.kr/login';
+                        } catch (error) {
+                            console.error("로그아웃 중 오류 발생:", error);
+                            alert('로그아웃 중 오류가 발생했습니다: ' + error.message);
+                        }
+                    };
+                    loginButton.classList.remove('border-gray-200'); // 로그인 버튼 border 스타일 제거
+                    loginButton.classList.remove('hover:bg-gray-50'); // 로그인 버튼 hover 스타일 제거
+                    loginButton.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600'); // 로그아웃 버튼 스타일
+                }
+                if (authInfoSpan) {
+                    authInfoSpan.textContent = user.email || user.uid; // 이메일 또는 UID 표시
+                    authInfoSpan.classList.remove('hidden');
+                }
+                if (authContainer) {
+                    authContainer.classList.remove('space-x-3');
+                    authContainer.classList.add('space-x-2'); // 간격 조정
+                }
+
             } else {
+                // 사용자가 로그아웃됨
                 console.log("User is signed out.");
-                // 여기에 로그아웃된 사용자 UI 업데이트 로직 추가 가능
+                if (loginButton) {
+                    loginButton.textContent = '로그인';
+                    loginButton.onclick = () => {
+                        window.location.href = 'https://nmate.kr/login'; // 로그인 페이지로 이동
+                    };
+                    loginButton.classList.add('border-gray-200'); // 로그인 버튼 border 스타일 복원
+                    loginButton.classList.add('hover:bg-gray-50'); // 로그인 버튼 hover 스타일 복원
+                    loginButton.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600'); // 로그아웃 버튼 스타일 제거
+                }
+                if (authInfoSpan) {
+                    authInfoSpan.classList.add('hidden'); // 인증 정보 숨김
+                    authInfoSpan.textContent = '';
+                }
+                 if (authContainer) {
+                    authContainer.classList.remove('space-x-2');
+                    authContainer.classList.add('space-x-3'); // 간격 조정
+                }
             }
         });
     </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #ffffff; /* PC에서도 모바일과 동일한 UI를 위해 배경색을 흰색으로 변경 */
+            background-color: #ffffff;
             color: #333;
             margin: 0;
             padding: 0;
@@ -76,63 +118,54 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        /* Consistent Naver-like green for branding */
         .nmate-green {
             color: #03c75a;
         }
-        /* Consistent light gray for input fields */
         .nmate-light-gray-bg {
             background-color: #f0f0f0;
         }
-        /* Consistent dark gray for secondary text */
         .text-nmate-dark-gray {
             color: #666;
         }
-        /* Custom scrollbar hide for navigation */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
         .scrollbar-hide {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-
-        /* 메인 콘텐츠 컨테이너 스타일 - 더보기 페이지와 동일한 여백 및 최대 너비 적용 */
         .main-content-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Aligns content to the left */
-            max-width: 36rem; /* Max width for content (reduced from 42rem) */
+            align-items: flex-start;
+            max-width: 36rem;
             margin-left: auto;
             margin-right: auto;
             width: 100%;
-            padding-bottom: 70px; /* Space for fixed bottom navigation (if applicable) */
+            padding-bottom: 70px;
         }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- 메인 콘텐츠 컨테이너 추가 -->
+    <!-- 메인 콘텐츠 컨테이너 -->
     <div class="main-content-container">
-        <!-- Header Section - Consistent with Naver clone -->
+        <!-- Header Section -->
         <header class="flex items-center justify-between p-4 bg-white border-b border-gray-100 w-full">
             <div class="flex items-center space-x-2">
-                <!-- NMATE Logo/Title replaced by Image -->
                 <img src="/image/logo.webp" alt="NMATE 진로 로고" class="h-12">
             </div>
-            <div class="flex items-center space-x-3">
-                <!-- 로그인 버튼 클릭 시 nmate.kr/login으로 이동 -->
+            <div id="authContainer" class="flex items-center space-x-3">
+                <span id="authInfo" class="text-sm font-semibold text-nmate-dark-gray hidden"></span> <!-- 로그인된 사용자 정보 -->
                 <button id="loginButton" class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
-                <button class="text-xl nmate-green">⚙️</button> <!-- Settings icon -->
+                <button class="text-xl nmate-green">⚙️</button>
             </div>
         </header>
 
-        <!-- Career Search Bar Section - Consistent design -->
+        <!-- Career Search Bar Section -->
         <div class="p-4 bg-white w-full">
             <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-gray-200">
-                <!-- Search input field with id for JavaScript access -->
                 <input type="text" id="searchInput" placeholder="관심 진로를 검색해보세요. (예: 개발자, 의사)" class="flex-grow bg-transparent outline-none text-base pl-2">
-                <!-- Search button with SVG icon -->
                 <button id="searchButton" class="ml-2 nmate-green font-bold text-lg p-1 rounded-full hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -142,7 +175,7 @@
             </div>
         </div>
 
-        <!-- Main Navigation (Career Categories) - Consistent styling -->
+        <!-- Main Navigation (Career Categories) -->
         <nav class="bg-white py-3 border-b border-gray-100 overflow-x-auto whitespace-nowrap scrollbar-hide w-full">
             <ul class="flex px-4 space-x-6 text-sm text-gray-700">
                 <li><a href="#" class="font-bold nmate-green border-b-2 border-green-500 pb-2">추천 진로</a></li>
@@ -183,7 +216,7 @@
                 </div>
             </div>
 
-            <!-- Popular Search Terms - Consistent with Naver trending topics -->
+            <!-- Popular Search Terms -->
             <div>
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-sm font-semibold">📈 지금 뜨는 인기 진로</span>
@@ -199,7 +232,7 @@
             </div>
         </main>
 
-        <!-- Career News/Tips Section (Example) -->
+        <!-- Career News/Tips Section -->
         <div class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm w-full">
             <h3 class="text-base font-semibold mb-3">💡 진로 Tip & 최신 뉴스</h3>
             <div class="space-y-3">
@@ -214,7 +247,7 @@
             </div>
         </div>
 
-        <!-- Footer Section - Consistent with Naver clone -->
+        <!-- Footer Section -->
         <footer class="bg-white mt-2 p-4 text-center text-xs text-gray-500 border-t border-gray-100 rounded-t-lg w-full">
             <p class="mb-2">
                 <a href="#" class="mx-2">이용안내</a> |
@@ -233,33 +266,30 @@
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
-            const loginButton = document.getElementById('loginButton');
+            // 로그인 버튼은 onAuthStateChanged에서 동적으로 관리됩니다.
+            // HTML 구조에 추가된 authInfo span과 authContainer div를 가져옵니다.
+            // const loginButton = document.getElementById('loginButton'); // 이제 전역으로 접근 가능하므로 이 부분은 필요 없음
 
-            // Function to handle search
+            // 검색 처리 함수
             const performSearch = () => {
                 const query = searchInput.value.trim();
                 if (query) {
-                    // Redirect to /search with the query parameter
                     window.location.href = `/search?q=${encodeURIComponent(query)}`;
                 }
             };
 
-            // Event listener for the search button click
+            // 검색 버튼 클릭 이벤트
             searchButton.addEventListener('click', performSearch);
 
-            // Event listener for 'Enter' key press in the search input
+            // 검색 입력 필드에서 Enter 키 이벤트
             searchInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
                     performSearch();
                 }
             });
 
-            // "로그인" 버튼 클릭 시 nmate.kr/login으로 이동
-            if (loginButton) {
-                loginButton.addEventListener('click', () => {
-                    window.location.href = 'https://nmate.kr/login';
-                });
-            }
+            // onAuthStateChanged는 상단의 <script type="module"> 블록에서 처리됩니다.
+            // 로그인/로그아웃 버튼 텍스트 및 동작 변경, 사용자 정보 표시는 해당 블록 내에서 이루어집니다.
         });
     </script>
 </body>
