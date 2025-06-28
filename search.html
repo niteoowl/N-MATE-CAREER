@@ -63,8 +63,8 @@
         <!-- Header Section - Consistent with Naver clone -->
         <header class="flex items-center justify-between p-4 bg-white border-b border-gray-100 w-full">
             <div class="flex items-center space-x-2">
-                <!-- NMATE Logo/Title -->
-                <div class="font-bold text-2xl nmate-green">NMATE 진로</div>
+                <!-- NMATE Logo/Title replaced by Image -->
+                <img src="/image/logo.webp" alt="NMATE 진로 로고" class="h-12">
             </div>
             <div class="flex items-center space-x-3">
                 <button class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
@@ -194,7 +194,7 @@
             searchResultButton.addEventListener('click', performSearch);
 
             // 검색 입력 필드에서 Enter 키 이벤트 핸들러
-            searchResultInput.addEventListener('keypress', (event) => {
+            searchInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
                     performSearch();
                 }
