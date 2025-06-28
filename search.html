@@ -136,6 +136,11 @@
             overflow-y: auto; /* Enable scrolling for long content */
         }
 
+        /* hidden 클래스를 위한 스타일 - !important 추가 */
+        .hidden {
+            display: none !important;
+        }
+
         .ability-detail-modal-content {
             background-color: white;
             border-radius: 0.75rem; /* rounded-xl */
@@ -366,6 +371,7 @@
             // 모달 외부 클릭 시 닫기
             if (abilityDetailModal) { // Ensure modal exists before adding listener
                 abilityDetailModal.addEventListener('click', (e) => {
+                    // Check if the click is directly on the modal background, not its content
                     if (e.target === abilityDetailModal) {
                         console.log("Clicked outside modal content! Hiding modal..."); // Debug log
                         abilityDetailModal.classList.add('hidden');
