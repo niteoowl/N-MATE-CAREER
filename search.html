@@ -222,9 +222,9 @@
                         }
                     };
 
-                    // 사용자가 제공한 API 키 사용 및 Gemini 2.5 Pro 모델 지정
                     const apiKey = "AIzaSyCIg1Hlmhm4ZYPi6TtPBqkhXsJJsdXJfWY";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+                    // Gemini 2.0 Flash 모델로 변경
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
