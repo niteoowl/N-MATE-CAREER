@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMATE 진로 - 진로 검색</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f2f4f7; /* Consistent with Naver clone background */
+            color: #333;
+        }
+        /* Consistent Naver-like green for branding */
+        .nmate-green {
+            color: #03c75a;
+        }
+        /* Consistent light gray for input fields */
+        .nmate-light-gray-bg {
+            background-color: #f0f0f0;
+        }
+        /* Consistent dark gray for secondary text */
+        .text-nmate-dark-gray {
+            color: #666;
+        }
+        /* Custom scrollbar hide for navigation */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="max-w-md mx-auto bg-white shadow-lg rounded-b-lg overflow-hidden">
+        <!-- Header Section - Consistent with Naver clone -->
+        <header class="flex items-center justify-between p-4 bg-white border-b border-gray-100">
+            <div class="flex items-center space-x-2">
+                <!-- NMATE Logo/Title -->
+                <div class="font-bold text-2xl nmate-green">NMATE 진로</div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
+                <button class="text-xl nmate-green">⚙️</button> <!-- Settings icon -->
+            </div>
+        </header>
+
+        <!-- Career Search Bar Section - Consistent design -->
+        <div class="p-4 bg-white">
+            <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-gray-200">
+                <!-- Search input field with id for JavaScript access -->
+                <input type="text" id="searchInput" placeholder="관심 진로를 검색해보세요. (예: 개발자, 의사)" class="flex-grow bg-transparent outline-none text-base pl-2">
+                <!-- Search button with id for JavaScript access -->
+                <button id="searchButton" class="ml-2 nmate-green font-bold text-lg">🔍</button>
+            </div>
+        </div>
+
+        <!-- Main Navigation (Career Categories) - Consistent styling -->
+        <nav class="bg-white py-3 border-b border-gray-100 overflow-x-auto whitespace-nowrap scrollbar-hide">
+            <ul class="flex px-4 space-x-6 text-sm text-gray-700">
+                <li><a href="#" class="font-bold nmate-green border-b-2 border-green-500 pb-2">추천 진로</a></li>
+                <li><a href="#" class="pb-2">IT/SW</a></li>
+                <li><a href="#" class="pb-2">의료/보건</a></li>
+                <li><a href="#" class="pb-2">예술/디자인</a></li>
+                <li><a href="#" class="pb-2">경영/사무</a></li>
+                <li><a href="#" class="pb-2">교육</a></li>
+                <li><a href="#" class="pb-2">공학</a></li>
+                <li><a href="#" class="pb-2">사회과학</a></li>
+                <li><a href="#" class="pb-2">자연과학</a></li>
+                <li><a href="#" class="pb-2">기타</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area - Recommended Careers / Trending Searches -->
+        <main class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm">
+            <!-- Personalized Recommendations (Placeholder) -->
+            <div class="mb-5 pb-3 border-b border-gray-100">
+                <h2 class="text-base font-semibold mb-3">✨ 당신을 위한 맞춤 추천 진로</h2>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-blue-50 p-3 rounded-lg flex items-center space-x-2">
+                        <span class="text-xl">👩‍💻</span>
+                        <span>프론트엔드 개발자</span>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg flex items-center space-x-2">
+                        <span class="text-xl">🎨</span>
+                        <span>UX/UI 디자이너</span>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg flex items-center space-x-2">
+                        <span class="text-xl">🩺</span>
+                        <span>간호사</span>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg flex items-center space-x-2">
+                        <span class="text-xl">📈</span>
+                        <span>데이터 분석가</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Search Terms - Consistent with Naver trending topics -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm font-semibold">📈 지금 뜨는 인기 진로</span>
+                    <button class="text-xs text-nmate-dark-gray">더보기 ></button>
+                </div>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="flex items-center"><span class="text-red-500 font-bold w-4">1</span> <span class="ml-2">인공지능 전문가</span></a></li>
+                    <li><a href="#" class="flex items-center"><span class="text-red-500 font-bold w-4">2</span> <span class="ml-2">ESG 컨설턴트</span></a></li>
+                    <li><a href="#" class="flex items-center"><span class="text-red-500 font-bold w-4">3</span> <span class="ml-2">클라우드 엔지니어</span></a></li>
+                    <li><a href="#" class="flex items-center"><span class="text-blue-500 font-bold w-4">4</span> <span class="ml-2">콘텐츠 크리에이터</span></a></li>
+                    <li><a href="#" class="flex items-center"><span class="text-blue-500 font-bold w-4">5</span> <span class="ml-2">스마트팜 전문가</span></a></li>
+                </ul>
+            </div>
+        </main>
+
+        <!-- Career News/Tips Section (Example) -->
+        <div class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm">
+            <h3 class="text-base font-semibold mb-3">💡 진로 Tip & 최신 뉴스</h3>
+            <div class="space-y-3">
+                <a href="#" class="block">
+                    <p class="text-sm font-medium leading-tight">[칼럼] 2025년 유망 직업 TOP 10 분석</p>
+                    <p class="text-xs text-nmate-dark-gray mt-1">NMATE 연구소 <span class="mx-1">•</span> 2일 전</p>
+                </a>
+                <a href="#" class="block">
+                    <p class="text-sm font-medium leading-tight">AI 시대, 변화하는 직업 세계에 대비하는 방법</p>
+                    <p class="text-xs text-nmate-dark-gray mt-1">진로 매거진 <span class="mx-1">•</span> 5시간 전</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer Section - Consistent with Naver clone -->
+        <footer class="bg-white mt-2 p-4 text-center text-xs text-gray-500 border-t border-gray-100 rounded-t-lg">
+            <p class="mb-2">
+                <a href="#" class="mx-2">이용안내</a> |
+                <a href="#" class="mx-2">FAQ</a> |
+                <a href="#" class="mx-2">문의하기</a>
+            </p>
+            <p class="mb-1">
+                <a href="#" class="mx-2">개인정보처리방침</a> |
+                <a href="#" class="mx-2 font-bold text-gray-700">이용약관</a>
+            </p>
+            <p>&copy; NMATE Career. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+
+            // Function to handle search
+            const performSearch = () => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Redirect to /search with the query parameter
+                    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                }
+            };
+
+            // Event listener for the search button click
+            searchButton.addEventListener('click', performSearch);
+
+            // Event listener for 'Enter' key press in the search input
+            searchInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
