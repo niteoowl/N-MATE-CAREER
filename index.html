@@ -10,8 +10,14 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f2f4f7; /* Consistent with Naver clone background */
+            background-color: #ffffff; /* PC에서도 모바일과 동일한 UI를 위해 배경색을 흰색으로 변경 */
             color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         /* Consistent Naver-like green for branding */
         .nmate-green {
@@ -33,15 +39,29 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+
+        /* 메인 콘텐츠 컨테이너 스타일 - 더보기 페이지와 동일한 여백 및 최대 너비 적용 */
+        .main-content-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Aligns content to the left */
+            max-width: 36rem; /* Max width for content (reduced from 42rem) */
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            padding-bottom: 70px; /* Space for fixed bottom navigation (if applicable) */
+        }
     </style>
 </head>
 <body class="min-h-screen">
-    <div class="max-w-md mx-auto bg-white shadow-lg rounded-b-lg overflow-hidden">
+    <!-- 메인 콘텐츠 컨테이너 추가 -->
+    <div class="main-content-container">
         <!-- Header Section - Consistent with Naver clone -->
-        <header class="flex items-center justify-between p-4 bg-white border-b border-gray-100">
+        <header class="flex items-center justify-between p-4 bg-white border-b border-gray-100 w-full">
             <div class="flex items-center space-x-2">
-                <!-- NMATE Logo/Title -->
-                <div class="font-bold text-2xl nmate-green">NMATE 진로</div>
+                <!-- NMATE Logo/Title replaced by Image -->
+                <img src="/image/logo.webp" alt="NMATE 진로 로고" class="h-12">
             </div>
             <div class="flex items-center space-x-3">
                 <button class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
@@ -50,7 +70,7 @@
         </header>
 
         <!-- Career Search Bar Section - Consistent design -->
-        <div class="p-4 bg-white">
+        <div class="p-4 bg-white w-full">
             <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-gray-200">
                 <!-- Search input field with id for JavaScript access -->
                 <input type="text" id="searchInput" placeholder="관심 진로를 검색해보세요. (예: 개발자, 의사)" class="flex-grow bg-transparent outline-none text-base pl-2">
@@ -60,7 +80,7 @@
         </div>
 
         <!-- Main Navigation (Career Categories) - Consistent styling -->
-        <nav class="bg-white py-3 border-b border-gray-100 overflow-x-auto whitespace-nowrap scrollbar-hide">
+        <nav class="bg-white py-3 border-b border-gray-100 overflow-x-auto whitespace-nowrap scrollbar-hide w-full">
             <ul class="flex px-4 space-x-6 text-sm text-gray-700">
                 <li><a href="#" class="font-bold nmate-green border-b-2 border-green-500 pb-2">추천 진로</a></li>
                 <li><a href="#" class="pb-2">IT/SW</a></li>
@@ -76,7 +96,7 @@
         </nav>
 
         <!-- Main Content Area - Recommended Careers / Trending Searches -->
-        <main class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm">
+        <main class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm w-full">
             <!-- Personalized Recommendations (Placeholder) -->
             <div class="mb-5 pb-3 border-b border-gray-100">
                 <h2 class="text-base font-semibold mb-3">✨ 당신을 위한 맞춤 추천 진로</h2>
@@ -117,7 +137,7 @@
         </main>
 
         <!-- Career News/Tips Section (Example) -->
-        <div class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm">
+        <div class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm w-full">
             <h3 class="text-base font-semibold mb-3">💡 진로 Tip & 최신 뉴스</h3>
             <div class="space-y-3">
                 <a href="#" class="block">
@@ -132,7 +152,7 @@
         </div>
 
         <!-- Footer Section - Consistent with Naver clone -->
-        <footer class="bg-white mt-2 p-4 text-center text-xs text-gray-500 border-t border-gray-100 rounded-t-lg">
+        <footer class="bg-white mt-2 p-4 text-center text-xs text-gray-500 border-t border-gray-100 rounded-t-lg w-full">
             <p class="mb-2">
                 <a href="#" class="mx-2">이용안내</a> |
                 <a href="#" class="mx-2">FAQ</a> |
