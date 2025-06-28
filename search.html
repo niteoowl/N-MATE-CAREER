@@ -103,12 +103,13 @@
             font-weight: 500; /* font-medium */
             text-align: center;
             cursor: pointer;
-            transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease; /* hover 효과 추가 */
+            transition: background-color 0.2s ease; /* Transition only for background-color */
             min-height: 80px; /* 적당한 최소 높이 설정 */
         }
+        /* 핵심 능력 상자 호버 스타일 수정 */
         .ability-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
-            transform: translateY(-2px);
+            background-color: #f5f5f5; /* 연한 회색 배경으로 변경 */
+            /* box-shadow 및 transform 제거 */
         }
         .ability-card.active { /* 활성 상태 스타일 */
             background-color: #e2f0e9; /* 연한 초록색 */
