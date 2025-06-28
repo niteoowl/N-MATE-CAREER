@@ -103,12 +103,17 @@
             font-weight: 500; /* font-medium */
             text-align: center;
             cursor: pointer;
-            transition: box-shadow 0.2s ease, transform 0.2s ease; /* hover 효과 추가 */
+            transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease; /* hover 효과 추가 */
             min-height: 80px; /* 적당한 최소 높이 설정 */
         }
         .ability-card:hover {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
             transform: translateY(-2px);
+        }
+        .ability-card.active { /* 활성 상태 스타일 */
+            background-color: #e2f0e9; /* 연한 초록색 */
+            border-color: #03c75a; /* nmate-green */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .ability-card .emoji {
             font-size: 2.25rem; /* text-3xl */
@@ -215,6 +220,22 @@
             </div>
         </main>
 
+        <!-- Ability Detail Section (Hidden by default, acts like a tab) -->
+        <section id="abilityDetailSection" class="bg-white my-4 rounded-lg mx-2 p-4 shadow-sm w-full hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="career-section-title mb-0" id="abilityDetailTitle"></h3>
+                <button id="closeAbilityDetail" class="text-gray-500 hover:text-gray-800 text-xl font-bold py-1 px-3 rounded-full hover:bg-gray-100">&times; 닫기</button>
+            </div>
+            <div id="abilityDetailContent" class="text-gray-700 text-base leading-relaxed space-y-3">
+                <!-- Detailed ability info will be loaded here -->
+            </div>
+            <div id="abilityLoading" class="flex justify-center items-center py-4 hidden">
+                <div class="loader mr-3"></div>
+                <p class="text-gray-500">정보를 불러오는 중...</p>
+            </div>
+        </section>
+
+
         <!-- Footer Section - Consistent with Naver clone -->
         <footer class="bg-white mt-2 p-4 text-center text-xs text-gray-500 border-t border-gray-100 rounded-t-lg w-full">
             <p class="mb-2">
@@ -228,24 +249,6 @@
             </p>
             <p>&copy; NMATE Career. All rights reserved.</p>
         </footer>
-    </div>
-
-    <!-- Ability Detail Modal/Section (Hidden by default) -->
-    <div id="abilityDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">
-            <div class="flex justify-between items-center mb-4">
-                <h4 class="text-xl font-bold text-gray-900" id="abilityDetailTitle"></h4>
-                <button id="closeAbilityDetail" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
-            </div>
-            <div id="abilityDetailContent" class="text-gray-700 text-base leading-relaxed space-y-3">
-                <!-- Detailed ability info will be loaded here -->
-                <p class="font-semibold">정보 로딩 중...</p>
-            </div>
-            <div id="abilityLoading" class="flex justify-center items-center py-4 hidden">
-                <div class="loader mr-3"></div>
-                <p class="text-gray-500">정보를 불러오는 중...</p>
-            </div>
-        </div>
     </div>
 
 
@@ -268,7 +271,16 @@
             const requiredSkillsElem = document.getElementById('requiredSkills');
             const futureOutlookElem = document.getElementById('futureOutlook');
             const relatedJobsElem = document.getElementById('relatedJobs');
-            const keyAbilitiesContainer = document.getElementById('keyAbilitiesContainer'); // 핵심 능력 컨테이너로 변경
+            const keyAbilitiesContainer = document.getElementById('keyAbilitiesContainer'); 
+            
+            // Ability Detail Section elements
+            const abilityDetailSection = document.getElementById('abilityDetailSection');
+            const abilityDetailTitle = document.getElementById('abilityDetailTitle');
+            const abilityDetailContent = document.getElementById('abilityDetailContent');
+            const abilityLoading = document.getElementById('abilityLoading');
+            const closeAbilityDetailButton = document.getElementById('closeAbilityDetail');
+
+            let currentActiveAbilityCard = null; // 현재 활성화된 능력 카드 추적
 
             // 검색어 설정 및 입력 필드 업데이트
             if (query) {
@@ -297,6 +309,16 @@
                 }
             });
 
+            // "닫기" 버튼 클릭 시 능력 상세 정보 섹션 숨기기
+            closeAbilityDetailButton.addEventListener('click', () => {
+                abilityDetailSection.classList.add('hidden');
+                // 활성화된 카드 초기화
+                if (currentActiveAbilityCard) {
+                    currentActiveAbilityCard.classList.remove('active');
+                    currentActiveAbilityCard = null;
+                }
+            });
+
             /**
              * Gemini API를 호출하여 직업 세부 정보를 가져옵니다.
              * @param {string} query 사용자의 검색어
@@ -305,9 +327,9 @@
                 loadingIndicator.classList.remove('hidden'); // 로딩 스피너 표시
                 careerDetailsDiv.classList.add('hidden'); // 기존 결과 숨김
                 noResultsDiv.classList.add('hidden'); // 결과 없음 숨김
+                abilityDetailSection.classList.add('hidden'); // 능력 상세 정보 섹션 숨김
 
                 try {
-                    // API 요청 프롬프트 수정: 핵심 능력 (Key Abilities)을 배열로 추가 요청 (이모지 포함)
                     const prompt = `Provide detailed career information for '${query}' including career name, job description, average salary, advantages, disadvantages, required skills, future outlook, related jobs, and key abilities. Format the response as a JSON object. Ensure all fields are present. For array fields, provide at least 2-3 items if applicable. If information is not available, state "정보 없음". Average salary should include currency and context (e.g., "대한민국 기준 연 5,000만원"). For key abilities, provide a list of abilities and for each ability, suggest a simple, relevant emoji. For example: [{"ability": "수리/논리력", "emoji": "🧠"}, {"ability": "의사소통 능력", "emoji": "🗣️"}].`;
 
                     const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
@@ -338,7 +360,7 @@
                                         "type": "ARRAY",
                                         "items": { "type": "STRING" }
                                     },
-                                    "keyAbilities": { // 핵심 능력 필드: 객체 배열로 다시 변경
+                                    "keyAbilities": { 
                                         "type": "ARRAY",
                                         "items": {
                                             "type": "OBJECT",
@@ -432,8 +454,18 @@
                                 <span class="emoji">${abilityItem.emoji}</span>
                                 <span>${abilityItem.ability}</span>
                             `;
-                            // 클릭 시 상세 정보 모달 표시
-                            abilityCard.addEventListener('click', () => showAbilityDetails(abilityItem.ability));
+                            // 클릭 시 상세 정보 탭 표시
+                            abilityCard.addEventListener('click', (event) => {
+                                // 기존 활성화 카드 스타일 제거
+                                if (currentActiveAbilityCard) {
+                                    currentActiveAbilityCard.classList.remove('active');
+                                }
+                                // 현재 클릭된 카드 활성화
+                                event.currentTarget.classList.add('active');
+                                currentActiveAbilityCard = event.currentTarget;
+
+                                showAbilityDetailsTab(abilityItem.ability);
+                            });
                             keyAbilitiesContainer.appendChild(abilityCard);
                         });
                     } else {
@@ -449,20 +481,17 @@
             }
 
             /**
-             * Shows a modal with detailed information about a specific ability.
+             * Shows a section with detailed information about a specific ability.
              * @param {string} abilityName The name of the ability to fetch details for.
              */
-            async function showAbilityDetails(abilityName) {
-                const abilityDetailModal = document.getElementById('abilityDetailModal');
-                const abilityDetailTitle = document.getElementById('abilityDetailTitle');
-                const abilityDetailContent = document.getElementById('abilityDetailContent');
-                const abilityLoading = document.getElementById('abilityLoading');
-                const closeAbilityDetail = document.getElementById('closeAbilityDetail');
-
+            async function showAbilityDetailsTab(abilityName) {
                 abilityDetailTitle.textContent = abilityName;
                 abilityDetailContent.innerHTML = ''; // Clear previous content
                 abilityLoading.classList.remove('hidden'); // Show loading
-                abilityDetailModal.classList.remove('hidden'); // Show modal
+                abilityDetailSection.classList.remove('hidden'); // Show the ability detail section
+
+                // 스크롤을 능력 상세 정보 섹션으로 이동
+                abilityDetailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 try {
                     const prompt = `Provide detailed information about the skill '${abilityName}' for career guidance. Include: 1. Description of the skill. 2. Why it is important. 3. How it can be developed. Format the response as a JSON object with keys: "description", "importance", "developmentMethods". If information is not available, state "정보 없음".`;
@@ -531,17 +560,6 @@
                 } finally {
                     abilityLoading.classList.add('hidden'); // Hide loading
                 }
-
-                closeAbilityDetail.onclick = () => {
-                    abilityDetailModal.classList.add('hidden');
-                };
-
-                // Close modal when clicking outside
-                abilityDetailModal.addEventListener('click', (e) => {
-                    if (e.target === abilityDetailModal) {
-                        abilityDetailModal.classList.add('hidden');
-                    }
-                });
             }
         });
     </script>
