@@ -136,10 +136,9 @@
             overflow-y: auto; /* Enable scrolling for long content */
         }
 
-        /* hidden 클래스를 위한 스타일 - !important 추가 */
-        .hidden {
-            display: none !important;
-        }
+        /* hidden 클래스를 위한 스타일 - !important 제거 */
+        /* display 속성을 JS에서 직접 제어하므로 hidden 클래스에서 !important 제거 */
+        /* .hidden { display: none; } */ 
 
         .ability-detail-modal-content {
             background-color: white;
@@ -278,7 +277,7 @@
     </div>
 
     <!-- Ability Detail Modal/Section (Hidden by default) -->
-    <div id="abilityDetailModal" class="ability-detail-modal hidden">
+    <div id="abilityDetailModal" class="ability-detail-modal" style="display: none;">
         <div class="ability-detail-modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h4 class="career-section-title mb-0" id="abilityDetailTitle"></h4>
@@ -325,6 +324,10 @@
 
             let currentActiveAbilityCard = null; // 현재 활성화된 능력 카드 추적
 
+            // Debugging: Check if elements are found
+            console.log("abilityDetailModal element:", abilityDetailModal);
+            console.log("closeAbilityDetailButton element:", closeAbilityDetailButton);
+
             // 검색어 설정 및 입력 필드 업데이트
             if (query) {
                 currentSearchQueryElement.textContent = decodeURIComponent(query);
@@ -356,7 +359,7 @@
             if (closeAbilityDetailButton) { // Ensure button exists before adding listener
                 closeAbilityDetailButton.addEventListener('click', () => {
                     console.log("Close button clicked! Hiding modal..."); // Debug log
-                    abilityDetailModal.classList.add('hidden');
+                    abilityDetailModal.style.display = 'none'; // Explicitly set display to none
                     // 활성화된 카드 스타일 제거
                     if (currentActiveAbilityCard) {
                         currentActiveAbilityCard.classList.remove('active');
@@ -374,7 +377,7 @@
                     // Check if the click is directly on the modal background, not its content
                     if (e.target === abilityDetailModal) {
                         console.log("Clicked outside modal content! Hiding modal..."); // Debug log
-                        abilityDetailModal.classList.add('hidden');
+                        abilityDetailModal.style.display = 'none'; // Explicitly set display to none
                         if (currentActiveAbilityCard) {
                             currentActiveAbilityCard.classList.remove('active');
                             currentActiveAbilityCard = null;
@@ -394,7 +397,7 @@
                 loadingIndicator.classList.remove('hidden'); // 로딩 스피너 표시
                 careerDetailsDiv.classList.add('hidden'); // 기존 결과 숨김
                 noResultsDiv.classList.add('hidden'); // 결과 없음 숨김
-                abilityDetailModal.classList.add('hidden'); // 능력 상세 모달 숨김
+                abilityDetailModal.style.display = 'none'; // Ensure modal is hidden on new search
 
                 try {
                     const prompt = `Provide detailed career information for '${query}' including career name, job description, average salary, advantages, disadvantages, required skills, future outlook, related jobs, and key abilities. Format the response as a JSON object. Ensure all fields are present. For array fields, provide at least 2-3 items if applicable. If information is not available, state "정보 없음". Average salary should include currency and context (e.g., "대한민국 기준 연 5,000만원"). For key abilities, provide a list of abilities and for each ability, suggest a simple, relevant emoji. For example: [{"ability": "수리/논리력", "emoji": "🧠"}, {"ability": "의사소통 능력", "emoji": "🗣️"}].`;
@@ -555,7 +558,7 @@
                 abilityDetailTitle.textContent = abilityName;
                 abilityDetailContent.innerHTML = ''; // Clear previous content
                 abilityLoading.classList.remove('hidden'); // Show loading
-                abilityDetailModal.classList.remove('hidden'); // Show the ability detail modal
+                abilityDetailModal.style.display = 'flex'; // Explicitly set display to flex
 
                 try {
                     const prompt = `Provide detailed information about the skill '${abilityName}' for career guidance. Include: 1. Description of the skill. 2. Why it is important. 3. How it can be developed. Format the response as a JSON object with keys: "description", "importance", "developmentMethods". If information is not available, state "정보 없음".`;
