@@ -482,6 +482,54 @@
                 abilityDetailModal.style.display = 'none'; // Ensure modal is hidden on new search
 
                 try {
+                    // Step 1: Validate if it's a legitimate job title using Gemini API
+                    const validationPrompt = `Is '${query}' a valid or recognizable job title in a general context (e.g., is it a real job, even if obscure, or just a made-up phrase)? Respond with a JSON object like {\"isValid\": true/false, \"reason\": \"Optional explanation\"}.`;
+                    const validationHistory = [{ role: "user", parts: [{ text: validationPrompt }] }];
+                    const validationPayload = {
+                        contents: validationHistory,
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    "isValid": { "type": "BOOLEAN" },
+                                    "reason": { "type": "STRING" }
+                                }
+                            }
+                        }
+                    };
+
+                    const apiKey = "AIzaSyCIg1Hlmhm4ZYPi6TtPBqkhXsJJsdXJfWY"; // Your API Key
+                    const validationApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const validationResponse = await fetch(validationApiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(validationPayload)
+                    });
+
+                    const validationResult = await validationResponse.json();
+                    console.log("Job Title Validation Response:", validationResult);
+
+                    let isValidJobTitle = false;
+                    if (validationResult.candidates && validationResult.candidates.length > 0 &&
+                        validationResult.candidates[0].content && validationResult.candidates[0].content.parts &&
+                        validationResult.candidates[0].content.parts.length > 0) {
+                        const validationJsonString = validationResult.candidates[0].content.parts[0].text;
+                        const validationData = JSON.parse(validationJsonString);
+                        isValidJobTitle = validationData.isValid;
+                    } else {
+                        console.warn("Failed to get a clear validation response, proceeding with main fetch.");
+                        isValidJobTitle = true; // Default to true if validation fails to prevent blocking legitimate searches
+                    }
+
+                    if (!isValidJobTitle) {
+                        noResultsDiv.classList.remove('hidden'); // Show "No search results"
+                        skeletonLoader.style.display = 'none'; // Hide skeleton loader
+                        return; // Stop execution
+                    }
+
+                    // Step 2: If valid, proceed with fetching career details (existing logic)
                     const prompt = `Provide detailed career information for '${query}' including career name, job description, average salary, advantages, disadvantages, required skills, future outlook, related jobs, and key abilities. Format the response as a JSON object. Ensure all fields are present. For array fields, provide at least 2-3 items if applicable. If information is not available, state "정보 없음". Average salary should include currency and context (e.g., "대한민국 기준 연 5,000만원"). For key abilities, provide a list of abilities and for each ability, suggest a simple, relevant emoji. For example: [{"ability": "수리/논리력", "emoji": "🧠"}, {"ability": "의사소통 능력", "emoji": "🗣️"}].`;
 
                     const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
@@ -531,7 +579,6 @@
                         }
                     };
 
-                    const apiKey = "AIzaSyCIg1Hlmhm4ZYPi6TtPBqkhXsJJsdXJfWY";
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
