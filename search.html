@@ -161,6 +161,19 @@
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+
+        /* 스켈레톤 로더 스타일 */
+        .skeleton-placeholder {
+            background-color: #e2e8f0; /* gray-200 */
+            border-radius: 0.25rem; /* rounded-md */
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -195,10 +208,85 @@
         <!-- Search Results Section -->
         <main class="bg-white my-2 rounded-lg mx-2 p-4 shadow-sm w-full">
             <h2 class="text-lg font-semibold mb-4">"<span id="currentSearchQuery" class="nmate-green"></span>" 검색 결과</h2>
+            <!-- Existing loading indicator, now only for very initial fetch status -->
             <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
                 <div class="loader mr-3"></div>
                 <p class="text-gray-500">정보를 불러오는 중...</p>
             </div>
+
+            <!-- Skeleton Loader -->
+            <div id="skeletonLoader" class="space-y-6 px-4 py-6 bg-white rounded-lg" style="display: none;">
+                <!-- Career Name Placeholder -->
+                <div class="skeleton-placeholder h-8 w-3/4 mx-auto mb-6"></div>
+
+                <!-- Description Placeholder -->
+                <div class="space-y-2">
+                    <div class="skeleton-placeholder h-5 w-full"></div>
+                    <div class="skeleton-placeholder h-5 w-11/12"></div>
+                    <div class="skeleton-placeholder h-5 w-10/12"></div>
+                </div>
+
+                <!-- Salary & Outlook Placeholders -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="skeleton-placeholder h-5 w-1/2 mb-2"></div>
+                        <div class="skeleton-placeholder h-5 w-3/4"></div>
+                    </div>
+                    <div>
+                        <div class="skeleton-placeholder h-5 w-1/2 mb-2"></div>
+                        <div class="skeleton-placeholder h-5 w-3/4"></div>
+                    </div>
+                </div>
+
+                <!-- List Section Placeholders (Advantages, Disadvantages, Skills, Related Jobs) -->
+                <div class="space-y-4">
+                    <!-- Example for one list section -->
+                    <div>
+                        <div class="skeleton-placeholder h-5 w-1/3 mb-2"></div>
+                        <div class="space-y-1">
+                            <div class="skeleton-placeholder h-4 w-5/6"></div>
+                            <div class="skeleton-placeholder h-4 w-4/5"></div>
+                            <div class="skeleton-placeholder h-4 w-full"></div>
+                        </div>
+                    </div>
+                     <div>
+                        <div class="skeleton-placeholder h-5 w-1/3 mb-2"></div>
+                        <div class="space-y-1">
+                            <div class="skeleton-placeholder h-4 w-5/6"></div>
+                            <div class="skeleton-placeholder h-4 w-4/5"></div>
+                            <div class="skeleton-placeholder h-4 w-full"></div>
+                        </div>
+                    </div>
+                     <div>
+                        <div class="skeleton-placeholder h-5 w-1/3 mb-2"></div>
+                        <div class="space-y-1">
+                            <div class="skeleton-placeholder h-4 w-5/6"></div>
+                            <div class="skeleton-placeholder h-4 w-4/5"></div>
+                            <div class="skeleton-placeholder h-4 w-full"></div>
+                        </div>
+                    </div>
+                     <div>
+                        <div class="skeleton-placeholder h-5 w-1/3 mb-2"></div>
+                        <div class="space-y-1">
+                            <div class="skeleton-placeholder h-4 w-5/6"></div>
+                            <div class="skeleton-placeholder h-4 w-4/5"></div>
+                            <div class="skeleton-placeholder h-4 w-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Abilities Placeholders (Grid of cards) -->
+                <div>
+                    <div class="skeleton-placeholder h-5 w-1/3 mb-4"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="skeleton-placeholder h-20 rounded-xl"></div>
+                        <div class="skeleton-placeholder h-20 rounded-xl"></div>
+                        <div class="skeleton-placeholder h-20 rounded-xl"></div>
+                        <div class="skeleton-placeholder h-20 rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+
             <div id="searchResults" class="space-y-6">
                 <!-- AI-generated career details will be injected here -->
                 <div id="careerDetails" class="hidden space-y-8 px-4 py-6 bg-white rounded-lg">
@@ -300,9 +388,10 @@
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
             const currentSearchQueryElement = document.getElementById('currentSearchQuery');
-            const searchResultInput = document.getElementById('searchResultInput'); // Corrected variable name
+            const searchResultInput = document.getElementById('searchResultInput');
             const searchResultButton = document.getElementById('searchResultButton');
-            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loadingIndicator = document.getElementById('loadingIndicator'); // Old loading indicator
+            const skeletonLoader = document.getElementById('skeletonLoader'); // New skeleton loader
             const careerDetailsDiv = document.getElementById('careerDetails');
             const noResultsDiv = document.getElementById('noResults');
 
@@ -325,10 +414,6 @@
 
             let currentActiveAbilityCard = null; // 현재 활성화된 능력 카드 추적
 
-            // Debugging: Check if elements are found
-            console.log("abilityDetailModal element:", abilityDetailModal);
-            console.log("closeAbilityDetailButton element:", closeAbilityDetailButton);
-
             // 검색어 설정 및 입력 필드 업데이트
             if (query) {
                 currentSearchQueryElement.textContent = decodeURIComponent(query);
@@ -337,6 +422,7 @@
             } else {
                 currentSearchQueryElement.textContent = '검색어를 입력해주세요';
                 noResultsDiv.classList.remove('hidden'); // 검색어 없으면 결과 없음 표시
+                skeletonLoader.style.display = 'none'; // No need for skeleton if no query
             }
 
             // 검색 버튼 클릭 이벤트 핸들러
@@ -349,7 +435,7 @@
 
             searchResultButton.addEventListener('click', performSearch);
 
-            // 검색 입력 필드에서 Enter 키 이벤트 핸들러 (searchInput -> searchResultInput으로 수정)
+            // 검색 입력 필드에서 Enter 키 이벤트 핸들러
             searchResultInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
                     performSearch();
@@ -357,36 +443,30 @@
             });
 
             // "닫기" 버튼 클릭 시 능력 상세 모달 숨기기
-            if (closeAbilityDetailButton) { // Ensure button exists before adding listener
+            if (closeAbilityDetailButton) {
                 closeAbilityDetailButton.addEventListener('click', () => {
-                    console.log("Close button clicked! Hiding modal..."); // Debug log
-                    abilityDetailModal.style.display = 'none'; // Explicitly set display to none
+                    abilityDetailModal.style.display = 'none';
                     // 활성화된 카드 스타일 제거
                     if (currentActiveAbilityCard) {
                         currentActiveAbilityCard.classList.remove('active');
                         currentActiveAbilityCard = null;
                     }
                 });
-            } else {
-                console.error("closeAbilityDetailButton not found!");
             }
 
 
             // 모달 외부 클릭 시 닫기
-            if (abilityDetailModal) { // Ensure modal exists before adding listener
+            if (abilityDetailModal) {
                 abilityDetailModal.addEventListener('click', (e) => {
                     // Check if the click is directly on the modal background, not its content
                     if (e.target === abilityDetailModal) {
-                        console.log("Clicked outside modal content! Hiding modal..."); // Debug log
-                        abilityDetailModal.style.display = 'none'; // Explicitly set display to none
+                        abilityDetailModal.style.display = 'none';
                         if (currentActiveAbilityCard) {
                             currentActiveAbilityCard.classList.remove('active');
                             currentActiveAbilityCard = null;
                         }
                     }
                 });
-            } else {
-                console.error("abilityDetailModal not found!");
             }
 
 
@@ -395,9 +475,10 @@
              * @param {string} query 사용자의 검색어
              */
             async function fetchCareerDetails(query) {
-                loadingIndicator.classList.remove('hidden'); // 로딩 스피너 표시
-                careerDetailsDiv.classList.add('hidden'); // 기존 결과 숨김
-                noResultsDiv.classList.add('hidden'); // 결과 없음 숨김
+                loadingIndicator.classList.add('hidden'); // Old loading indicator hidden
+                skeletonLoader.style.display = 'block'; // Show skeleton loader
+                careerDetailsDiv.classList.add('hidden'); // Hide actual content
+                noResultsDiv.classList.add('hidden'); // Hide no results
                 abilityDetailModal.style.display = 'none'; // Ensure modal is hidden on new search
 
                 try {
@@ -477,7 +558,7 @@
                     console.error("직업 정보를 불러오는 중 오류 발생:", error);
                     noResultsDiv.classList.remove('hidden'); // 오류 시 결과 없음 표시
                 } finally {
-                    loadingIndicator.classList.add('hidden'); // 로딩 스피너 숨김
+                    skeletonLoader.style.display = 'none'; // Hide skeleton loader
                 }
             }
 
