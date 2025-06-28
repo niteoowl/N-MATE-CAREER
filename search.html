@@ -51,10 +51,6 @@
             width: 100%;
             padding-bottom: 70px; /* Space for fixed bottom navigation */
         }
-
-        /* 하단 내비게이션 바를 위한 스타일 (search_page에는 없으므로 추가하지 않음) */
-        /* 그러나 futureproofing을 위해 주석으로 남겨둠. */
-        /* .nav-item { ... } */
     </style>
 </head>
 <body class="min-h-screen">
@@ -76,7 +72,13 @@
         <div class="p-4 bg-white border-b border-gray-100 w-full">
             <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-gray-200">
                 <input type="text" id="searchResultInput" placeholder="검색어를 다시 입력하세요." class="flex-grow bg-transparent outline-none text-base pl-2">
-                <button id="searchResultButton" class="ml-2 nmate-green font-bold text-lg">🔍</button>
+                <!-- Search button with SVG icon -->
+                <button id="searchResultButton" class="ml-2 nmate-green font-bold text-lg p-1 rounded-full hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -89,43 +91,64 @@
             </div>
             <div id="searchResults" class="space-y-6">
                 <!-- AI-generated career details will be injected here -->
-                <div id="careerDetails" class="hidden">
-                    <h3 class="text-xl font-bold mb-3" id="careerName"></h3>
+                <div id="careerDetails" class="hidden space-y-4">
+                    <h3 class="text-2xl font-extrabold text-gray-900 mb-4" id="careerName"></h3>
 
-                    <div class="mb-4">
-                        <p class="text-sm font-semibold mb-1">직업 설명:</p>
+                    <!-- 직업 설명 -->
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                        <p class="text-base font-semibold mb-2 flex items-center">
+                            <span class="mr-2">📝</span> 직업 설명:
+                        </p>
                         <p class="text-gray-700 text-sm leading-relaxed" id="description"></p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <p class="text-sm font-semibold mb-1">평균 연봉:</p>
-                            <p class="text-gray-700 text-sm" id="averageSalary"></p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- 평균 연봉 -->
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200 shadow-sm">
+                            <p class="text-base font-semibold mb-2 flex items-center">
+                                <span class="mr-2">💰</span> 평균 연봉:
+                            </p>
+                            <p class="text-gray-800 text-sm font-medium" id="averageSalary"></p>
                         </div>
-                        <div>
-                            <p class="text-sm font-semibold mb-1">미래 전망:</p>
-                            <p class="text-gray-700 text-sm" id="futureOutlook"></p>
+                        <!-- 미래 전망 -->
+                        <div class="p-4 bg-purple-50 rounded-lg border border-purple-200 shadow-sm">
+                            <p class="text-base font-semibold mb-2 flex items-center">
+                                <span class="mr-2">🔮</span> 미래 전망:
+                            </p>
+                            <p class="text-gray-800 text-sm font-medium" id="futureOutlook"></p>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <p class="text-sm font-semibold mb-1">장점:</p>
-                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="advantages"></ul>
+                    <!-- 장점 -->
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm">
+                        <p class="text-base font-semibold mb-2 flex items-center">
+                            <span class="mr-2">👍</span> 장점:
+                        </p>
+                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="advantages"></ul>
                     </div>
 
-                    <div class="mb-4">
-                        <p class="text-sm font-semibold mb-1">단점:</p>
-                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="disadvantages"></ul>
+                    <!-- 단점 -->
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200 shadow-sm">
+                        <p class="text-base font-semibold mb-2 flex items-center">
+                            <span class="mr-2">👎</span> 단점:
+                        </p>
+                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="disadvantages"></ul>
                     </div>
 
-                    <div class="mb-4">
-                        <p class="text-sm font-semibold mb-1">필요 역량:</p>
-                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="requiredSkills"></ul>
+                    <!-- 필요 역량 -->
+                    <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 shadow-sm">
+                        <p class="text-base font-semibold mb-2 flex items-center">
+                            <span class="mr-2">💪</span> 필요 역량:
+                        </p>
+                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="requiredSkills"></ul>
                     </div>
 
-                    <div class="mb-4">
-                        <p class="text-sm font-semibold mb-1">관련 직업:</p>
-                        <ul class="list-disc list-inside text-sm text-gray-700 pl-2" id="relatedJobs"></ul>
+                    <!-- 관련 직업 -->
+                    <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-200 shadow-sm">
+                        <p class="text-base font-semibold mb-2 flex items-center">
+                            <span class="mr-2">🔗</span> 관련 직업:
+                        </p>
+                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="relatedJobs"></ul>
                     </div>
                 </div>
 
@@ -292,25 +315,27 @@
                     futureOutlookElem.textContent = data.futureOutlook || '정보 없음';
 
                     // 리스트 아이템 동적 생성 함수
-                    const populateList = (element, items) => {
+                    const populateList = (element, items, icon) => {
                         element.innerHTML = ''; // 기존 내용 지우기
                         if (items && items.length > 0) {
                             items.forEach(item => {
                                 const li = document.createElement('li');
-                                li.textContent = item;
+                                li.className = 'flex items-center'; // 아이템별 flex 적용
+                                li.innerHTML = `<span class="mr-2">${icon}</span> <span>${item}</span>`;
                                 element.appendChild(li);
                             });
                         } else {
                             const li = document.createElement('li');
-                            li.textContent = '정보 없음';
+                            li.className = 'flex items-center';
+                            li.innerHTML = `<span class="mr-2"></span> <span>정보 없음</span>`;
                             element.appendChild(li);
                         }
                     };
 
-                    populateList(advantagesElem, data.advantages);
-                    populateList(disadvantagesElem, data.disadvantages);
-                    populateList(requiredSkillsElem, data.requiredSkills);
-                    populateList(relatedJobsElem, data.relatedJobs);
+                    populateList(advantagesElem, data.advantages, '✅'); // 장점 아이콘
+                    populateList(disadvantagesElem, data.disadvantages, '❌'); // 단점 아이콘
+                    populateList(requiredSkillsElem, data.requiredSkills, '💡'); // 필요 역량 아이콘
+                    populateList(relatedJobsElem, data.relatedJobs, '➡️'); // 관련 직업 아이콘
 
                     careerDetailsDiv.classList.remove('hidden'); // 직업 세부 정보 표시
                 } else {
