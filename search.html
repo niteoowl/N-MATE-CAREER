@@ -91,64 +91,50 @@
             </div>
             <div id="searchResults" class="space-y-6">
                 <!-- AI-generated career details will be injected here -->
-                <div id="careerDetails" class="hidden space-y-4">
-                    <h3 class="text-2xl font-extrabold text-gray-900 mb-4" id="careerName"></h3>
+                <div id="careerDetails" class="hidden space-y-6">
+                    <h3 class="text-3xl font-extrabold text-gray-900 text-center mb-6" id="careerName"></h3>
 
                     <!-- 직업 설명 -->
-                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
-                        <p class="text-base font-semibold mb-2 flex items-center">
-                            <span class="mr-2">📝</span> 직업 설명:
-                        </p>
-                        <p class="text-gray-700 text-sm leading-relaxed" id="description"></p>
+                    <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">직업 설명</h4>
+                        <p class="text-gray-700 text-base leading-relaxed" id="description"></p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- 평균 연봉 -->
-                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200 shadow-sm">
-                            <p class="text-base font-semibold mb-2 flex items-center">
-                                <span class="mr-2">💰</span> 평균 연봉:
-                            </p>
-                            <p class="text-gray-800 text-sm font-medium" id="averageSalary"></p>
+                        <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">평균 연봉</h4>
+                            <p class="text-gray-800 text-base font-medium" id="averageSalary"></p>
                         </div>
                         <!-- 미래 전망 -->
-                        <div class="p-4 bg-purple-50 rounded-lg border border-purple-200 shadow-sm">
-                            <p class="text-base font-semibold mb-2 flex items-center">
-                                <span class="mr-2">🔮</span> 미래 전망:
-                            </p>
-                            <p class="text-gray-800 text-sm font-medium" id="futureOutlook"></p>
+                        <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">미래 전망</h4>
+                            <p class="text-gray-800 text-base font-medium" id="futureOutlook"></p>
                         </div>
                     </div>
 
                     <!-- 장점 -->
-                    <div class="p-4 bg-green-50 rounded-lg border border-green-200 shadow-sm">
-                        <p class="text-base font-semibold mb-2 flex items-center">
-                            <span class="mr-2">👍</span> 장점:
-                        </p>
-                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="advantages"></ul>
+                    <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">장점</h4>
+                        <ul class="list-disc text-base text-gray-700 pl-5 space-y-2" id="advantages"></ul>
                     </div>
 
                     <!-- 단점 -->
-                    <div class="p-4 bg-red-50 rounded-lg border border-red-200 shadow-sm">
-                        <p class="text-base font-semibold mb-2 flex items-center">
-                            <span class="mr-2">👎</span> 단점:
-                        </p>
-                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="disadvantages"></ul>
+                    <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">단점</h4>
+                        <ul class="list-disc text-base text-gray-700 pl-5 space-y-2" id="disadvantages"></ul>
                     </div>
 
                     <!-- 필요 역량 -->
-                    <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 shadow-sm">
-                        <p class="text-base font-semibold mb-2 flex items-center">
-                            <span class="mr-2">💪</span> 필요 역량:
-                        </p>
-                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="requiredSkills"></ul>
+                    <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">필요 역량</h4>
+                        <ul class="list-disc text-base text-gray-700 pl-5 space-y-2" id="requiredSkills"></ul>
                     </div>
 
                     <!-- 관련 직업 -->
-                    <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-200 shadow-sm">
-                        <p class="text-base font-semibold mb-2 flex items-center">
-                            <span class="mr-2">🔗</span> 관련 직업:
-                        </p>
-                        <ul class="list-none text-sm text-gray-700 pl-0 space-y-1" id="relatedJobs"></ul>
+                    <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-md">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">관련 직업</h4>
+                        <ul class="list-disc text-base text-gray-700 pl-5 space-y-2" id="relatedJobs"></ul>
                     </div>
                 </div>
 
@@ -314,28 +300,28 @@
                     averageSalaryElem.textContent = data.averageSalary || '정보 없음';
                     futureOutlookElem.textContent = data.futureOutlook || '정보 없음';
 
-                    // 리스트 아이템 동적 생성 함수
-                    const populateList = (element, items, icon) => {
+                    // 리스트 아이템 동적 생성 함수 (이모지 삭제)
+                    const populateList = (element, items) => {
                         element.innerHTML = ''; // 기존 내용 지우기
                         if (items && items.length > 0) {
                             items.forEach(item => {
                                 const li = document.createElement('li');
-                                li.className = 'flex items-center'; // 아이템별 flex 적용
-                                li.innerHTML = `<span class="mr-2">${icon}</span> <span>${item}</span>`;
+                                li.className = 'text-base leading-relaxed'; // 텍스트 크기와 줄 간격 조정
+                                li.textContent = item;
                                 element.appendChild(li);
                             });
                         } else {
                             const li = document.createElement('li');
-                            li.className = 'flex items-center';
-                            li.innerHTML = `<span class="mr-2"></span> <span>정보 없음</span>`;
+                            li.className = 'text-base leading-relaxed';
+                            li.textContent = '정보 없음';
                             element.appendChild(li);
                         }
                     };
 
-                    populateList(advantagesElem, data.advantages, '✅'); // 장점 아이콘
-                    populateList(disadvantagesElem, data.disadvantages, '❌'); // 단점 아이콘
-                    populateList(requiredSkillsElem, data.requiredSkills, '💡'); // 필요 역량 아이콘
-                    populateList(relatedJobsElem, data.relatedJobs, '➡️'); // 관련 직업 아이콘
+                    populateList(advantagesElem, data.advantages);
+                    populateList(disadvantagesElem, data.disadvantages);
+                    populateList(requiredSkillsElem, data.requiredSkills);
+                    populateList(relatedJobsElem, data.relatedJobs);
 
                     careerDetailsDiv.classList.remove('hidden'); // 직업 세부 정보 표시
                 } else {
