@@ -348,25 +348,37 @@
             });
 
             // "닫기" 버튼 클릭 시 능력 상세 모달 숨기기
-            closeAbilityDetailButton.addEventListener('click', () => {
-                abilityDetailModal.classList.add('hidden');
-                // 활성화된 카드 스타일 제거
-                if (currentActiveAbilityCard) {
-                    currentActiveAbilityCard.classList.remove('active');
-                    currentActiveAbilityCard = null;
-                }
-            });
-
-            // 모달 외부 클릭 시 닫기
-            abilityDetailModal.addEventListener('click', (e) => {
-                if (e.target === abilityDetailModal) {
+            if (closeAbilityDetailButton) { // Ensure button exists before adding listener
+                closeAbilityDetailButton.addEventListener('click', () => {
+                    console.log("Close button clicked! Hiding modal..."); // Debug log
                     abilityDetailModal.classList.add('hidden');
+                    // 활성화된 카드 스타일 제거
                     if (currentActiveAbilityCard) {
                         currentActiveAbilityCard.classList.remove('active');
                         currentActiveAbilityCard = null;
                     }
-                }
-            });
+                });
+            } else {
+                console.error("closeAbilityDetailButton not found!");
+            }
+
+
+            // 모달 외부 클릭 시 닫기
+            if (abilityDetailModal) { // Ensure modal exists before adding listener
+                abilityDetailModal.addEventListener('click', (e) => {
+                    if (e.target === abilityDetailModal) {
+                        console.log("Clicked outside modal content! Hiding modal..."); // Debug log
+                        abilityDetailModal.classList.add('hidden');
+                        if (currentActiveAbilityCard) {
+                            currentActiveAbilityCard.classList.remove('active');
+                            currentActiveAbilityCard = null;
+                        }
+                    }
+                });
+            } else {
+                console.error("abilityDetailModal not found!");
+            }
+
 
             /**
              * Gemini API를 호출하여 직업 세부 정보를 가져옵니다.
