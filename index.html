@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NMATE 진로 - 진로 검색</title>
+    <title>NMATE CAREEA</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,11 +13,11 @@
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase 설정 (사용자 제공)
-        // 실제 배포 환경에서는 이 설정이 nmate.kr과 career.nmate.kr 모두에서 동일하게 사용되어야 합니다.
+        // Firebase configuration (provided by user)
+        // In a real deployment, this configuration should be the same for both nmate.kr and career.nmate.kr.
         const firebaseConfig = {
             apiKey: "AIzaSyC_SHRcQ9hXmjVbP3km4rdR4UvKIoqpLHo",
-            authDomain: "n-mate.firebaseapp.com", // Firebase 프로젝트의 인증 도메인
+            authDomain: "n-mate.firebaseapp.com", // Firebase project's authentication domain
             projectId: "n-mate",
             storageBucket: "n-mate.firebasestorage.app",
             messagingSenderId: "691313471077",
@@ -25,17 +25,17 @@
             measurementId: "G-0LCGVBKXLQ"
         };
 
-        // Firebase 앱 초기화
+        // Initialize Firebase app
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 전역 변수로 auth, db 인스턴스 노출
+        // Expose auth, db instances globally
         window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDb = db;
 
-        // Canvas 환경에서 __initial_auth_token이 제공될 경우 로그인 시도
+        // Attempt to log in with __initial_auth_token if provided (Canvas environment)
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         if (initialAuthToken) {
@@ -48,60 +48,60 @@
                 });
         }
 
-        // 인증 상태 변경 감지 및 UI 업데이트
+        // Detect authentication state changes and update UI
         onAuthStateChanged(auth, (user) => {
             const loginButton = document.getElementById('loginButton');
-            const authInfoSpan = document.getElementById('authInfo'); // 추가된 인증 정보 표시 span
-            const authContainer = document.getElementById('authContainer'); // 로그인/로그아웃 버튼을 감싸는 컨테이너
+            const authInfoSpan = document.getElementById('authInfo'); // Added span for displaying authentication info
+            const authContainer = document.getElementById('authContainer'); // Container for login/logout button
 
             if (user) {
-                // 사용자가 로그인됨
+                // User is signed in
                 console.log("User is signed in:", user.uid, user.email);
                 if (loginButton) {
                     loginButton.textContent = '로그아웃';
                     loginButton.onclick = async () => {
                         try {
                             await signOut(auth);
-                            alert('로그아웃되었습니다.'); // 사용자에게 알림 (경고창 대신 메시지 박스 사용 권장)
-                            // 로그아웃 후 로그인 페이지로 리디렉션하거나 홈페이지로 이동
+                            alert('로그아웃되었습니다.'); // Inform user (recommend using a custom message box instead of alert)
+                            // Redirect to login page or home page after logout
                              window.location.href = 'https://nmate.kr/login';
                         } catch (error) {
-                            console.error("로그아웃 중 오류 발생:", error);
+                            console.error("Error during logout:", error);
                             alert('로그아웃 중 오류가 발생했습니다: ' + error.message);
                         }
                     };
-                    loginButton.classList.remove('border-gray-200'); // 로그인 버튼 border 스타일 제거
-                    loginButton.classList.remove('hover:bg-gray-50'); // 로그인 버튼 hover 스타일 제거
-                    loginButton.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600'); // 로그아웃 버튼 스타일
+                    loginButton.classList.remove('border-gray-200'); // Remove login button border style
+                    loginButton.classList.remove('hover:bg-gray-50'); // Remove login button hover style
+                    loginButton.classList.add('bg-red-500', 'text-white', 'hover:bg-red-600'); // Logout button style
                 }
                 if (authInfoSpan) {
-                    authInfoSpan.textContent = user.email || user.uid; // 이메일 또는 UID 표시
+                    authInfoSpan.textContent = user.email || user.uid; // Display email or UID
                     authInfoSpan.classList.remove('hidden');
                 }
                 if (authContainer) {
                     authContainer.classList.remove('space-x-3');
-                    authContainer.classList.add('space-x-2'); // 간격 조정
+                    authContainer.classList.add('space-x-2'); // Adjust spacing
                 }
 
             } else {
-                // 사용자가 로그아웃됨
+                // User is signed out
                 console.log("User is signed out.");
                 if (loginButton) {
                     loginButton.textContent = '로그인';
                     loginButton.onclick = () => {
-                        window.location.href = 'https://nmate.kr/login'; // 로그인 페이지로 이동
+                        window.location.href = 'https://nmate.kr/login'; // Go to login page
                     };
-                    loginButton.classList.add('border-gray-200'); // 로그인 버튼 border 스타일 복원
-                    loginButton.classList.add('hover:bg-gray-50'); // 로그인 버튼 hover 스타일 복원
-                    loginButton.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600'); // 로그아웃 버튼 스타일 제거
+                    loginButton.classList.add('border-gray-200'); // Restore login button border style
+                    loginButton.classList.add('hover:bg-gray-50'); // Restore login button hover style
+                    loginButton.classList.remove('bg-red-500', 'text-white', 'hover:bg-red-600'); // Remove logout button style
                 }
                 if (authInfoSpan) {
-                    authInfoSpan.classList.add('hidden'); // 인증 정보 숨김
+                    authInfoSpan.classList.add('hidden'); // Hide authentication info
                     authInfoSpan.textContent = '';
                 }
                  if (authContainer) {
                     authContainer.classList.remove('space-x-2');
-                    authContainer.classList.add('space-x-3'); // 간격 조정
+                    authContainer.classList.add('space-x-3'); // Adjust spacing
                 }
             }
         });
@@ -148,7 +148,7 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- 메인 콘텐츠 컨테이너 -->
+    <!-- Main content container -->
     <div class="main-content-container">
         <!-- Header Section -->
         <header class="flex items-center justify-between p-4 bg-white border-b border-gray-100 w-full">
@@ -156,7 +156,7 @@
                 <img src="/image/logo.webp" alt="NMATE 진로 로고" class="h-12">
             </div>
             <div id="authContainer" class="flex items-center space-x-3">
-                <span id="authInfo" class="text-sm font-semibold text-nmate-dark-gray hidden"></span> <!-- 로그인된 사용자 정보 -->
+                <span id="authInfo" class="text-sm font-semibold text-nmate-dark-gray hidden"></span> <!-- Display logged-in user info -->
                 <button id="loginButton" class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
                 <button class="text-xl nmate-green">⚙️</button>
             </div>
@@ -196,20 +196,20 @@
             <!-- Personalized Recommendations (Placeholder) -->
             <div class="mb-5 pb-3 border-b border-gray-100">
                 <h2 class="text-base font-semibold mb-3">✨ 당신을 위한 맞춤 추천 진로</h2>
-                <div class="grid grid-cols-2 gap-3 text-sm">
-                    <div class="bg-blue-50 p-3 rounded-lg flex items-center space-x-2">
+                <div id="recommendedCareersList" class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-blue-50 p-3 rounded-lg flex items-center space-x-2 cursor-pointer" data-career="프론트엔드 개발자">
                         <span class="text-xl">👩‍💻</span>
                         <span>프론트엔드 개발자</span>
                     </div>
-                    <div class="bg-green-50 p-3 rounded-lg flex items-center space-x-2">
+                    <div class="bg-green-50 p-3 rounded-lg flex items-center space-x-2 cursor-pointer" data-career="UX/UI 디자이너">
                         <span class="text-xl">🎨</span>
                         <span>UX/UI 디자이너</span>
                     </div>
-                    <div class="bg-purple-50 p-3 rounded-lg flex items-center space-x-2">
+                    <div class="bg-purple-50 p-3 rounded-lg flex items-center space-x-2 cursor-pointer" data-career="간호사">
                         <span class="text-xl">🩺</span>
                         <span>간호사</span>
                     </div>
-                    <div class="bg-orange-50 p-3 rounded-lg flex items-center space-x-2">
+                    <div class="bg-orange-50 p-3 rounded-lg flex items-center space-x-2 cursor-pointer" data-career="데이터 분석가">
                         <span class="text-xl">📈</span>
                         <span>데이터 분석가</span>
                     </div>
@@ -222,12 +222,12 @@
                     <span class="text-sm font-semibold">📈 지금 뜨는 인기 진로</span>
                     <button class="text-xs text-nmate-dark-gray">더보기 ></button>
                 </div>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="flex items-center"><span class="text-red-500 font-bold w-4">1</span> <span class="ml-2">인공지능 전문가</span></a></li>
-                    <li><a href="#" class="flex items-center"><span class="text-red-500 font-bold w-4">2</span> <span class="ml-2">ESG 컨설턴트</span></a></li>
-                    <li><a href="#" class="flex items-center"><span class="text-red-500 font-bold w-4">3</span> <span class="ml-2">클라우드 엔지니어</span></a></li>
-                    <li><a href="#" class="flex items-center"><span class="text-blue-500 font-bold w-4">4</span> <span class="ml-2">콘텐츠 크리에이터</span></a></li>
-                    <li><a href="#" class="flex items-center"><span class="text-blue-500 font-bold w-4">5</span> <span class="ml-2">스마트팜 전문가</span></a></li>
+                <ul class="space-y-2 text-sm" id="popularCareersList">
+                    <li><a href="#" class="flex items-center" data-career="인공지능 전문가"><span class="text-red-500 font-bold w-4">1</span> <span class="ml-2">인공지능 전문가</span></a></li>
+                    <li><a href="#" class="flex items-center" data-career="ESG 컨설턴트"><span class="text-red-500 font-bold w-4">2</span> <span class="ml-2">ESG 컨설턴트</span></a></li>
+                    <li><a href="#" class="flex items-center" data-career="클라우드 엔지니어"><span class="text-red-500 font-bold w-4">3</span> <span class="ml-2">클라우드 엔지니어</span></a></li>
+                    <li><a href="#" class="flex items-center" data-career="콘텐츠 크리에이터"><span class="text-blue-500 font-bold w-4">4</span> <span class="ml-2">콘텐츠 크리에이터</span></a></li>
+                    <li><a href="#" class="flex items-center" data-career="스마트팜 전문가"><span class="text-blue-500 font-bold w-4">5</span> <span class="ml-2">스마트팜 전문가</span></a></li>
                 </ul>
             </div>
         </main>
@@ -266,30 +266,49 @@
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
-            // 로그인 버튼은 onAuthStateChanged에서 동적으로 관리됩니다.
-            // HTML 구조에 추가된 authInfo span과 authContainer div를 가져옵니다.
-            // const loginButton = document.getElementById('loginButton'); // 이제 전역으로 접근 가능하므로 이 부분은 필요 없음
+            const popularCareersList = document.getElementById('popularCareersList'); // 인기 진로 리스트
+            const recommendedCareersList = document.getElementById('recommendedCareersList'); // 추천 진로 리스트
 
-            // 검색 처리 함수
-            const performSearch = () => {
-                const query = searchInput.value.trim();
+            // Function to handle search redirection
+            const performSearch = (query) => {
                 if (query) {
                     window.location.href = `/search?q=${encodeURIComponent(query)}`;
                 }
             };
 
-            // 검색 버튼 클릭 이벤트
-            searchButton.addEventListener('click', performSearch);
+            // Event listener for the search button click
+            searchButton.addEventListener('click', () => performSearch(searchInput.value.trim()));
 
-            // 검색 입력 필드에서 Enter 키 이벤트
+            // Event listener for 'Enter' key press in the search input
             searchInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
-                    performSearch();
+                    performSearch(searchInput.value.trim());
                 }
             });
 
-            // onAuthStateChanged는 상단의 <script type="module"> 블록에서 처리됩니다.
-            // 로그인/로그아웃 버튼 텍스트 및 동작 변경, 사용자 정보 표시는 해당 블록 내에서 이루어집니다.
+            // Event listener for clicks on "Popular Search Terms" list items
+            if (popularCareersList) {
+                popularCareersList.addEventListener('click', (event) => {
+                    const targetLink = event.target.closest('a[data-career]');
+                    if (targetLink) {
+                        event.preventDefault(); // Prevent default link behavior
+                        const careerName = targetLink.dataset.career;
+                        performSearch(careerName);
+                    }
+                });
+            }
+
+            // Event listener for clicks on "Personalized Recommendations" list items
+            if (recommendedCareersList) {
+                recommendedCareersList.addEventListener('click', (event) => {
+                    // Find the closest parent div with the data-career attribute
+                    const targetDiv = event.target.closest('div[data-career]');
+                    if (targetDiv) {
+                        const careerName = targetDiv.dataset.career;
+                        performSearch(careerName);
+                    }
+                });
+            }
         });
     </script>
 </body>
