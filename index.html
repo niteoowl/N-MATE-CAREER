@@ -7,6 +7,63 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Firestore is not directly needed for this authentication, but included for completeness if db operations are added later.
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase 설정 (사용자 제공)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_SHRcQ9hXmjVbP3km4rdR4UvKIoqpLHo",
+            authDomain: "n-mate.firebaseapp.com",
+            projectId: "n-mate",
+            storageBucket: "n-mate.firebasestorage.app",
+            messagingSenderId: "691313471077",
+            appId: "1:691313471077:web:3066aaeca0a1d9e448e08c",
+            measurementId: "G-0LCGVBKXLQ"
+        };
+
+        // Firebase 앱 초기화
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app); // Initialize Firestore as well
+
+        // 전역 변수로 auth, db 인스턴스 노출 (스크립트 태그 내 다른 스크립트에서 사용 가능하도록)
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+
+        // 초기 인증 토큰을 사용하여 로그인
+        // Canvas 환경에서 __initial_auth_token이 제공될 수 있음
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        if (initialAuthToken) {
+            signInWithCustomToken(auth, initialAuthToken)
+                .then((userCredential) => {
+                    console.log("Firebase custom token login successful:", userCredential.user.uid);
+                    // 인증 상태 변경 리스너는 auth.currentUser를 통해 최신 사용자 정보를 제공합니다.
+                })
+                .catch((error) => {
+                    console.error("Firebase custom token login failed:", error.message);
+                });
+        } else {
+            console.log("No initial auth token provided. User might be unauthenticated.");
+        }
+
+        // 인증 상태 변경 감지
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("User is signed in:", user.uid);
+                // 여기에 인증된 사용자 UI 업데이트 로직 추가 가능
+                // 예: 로그인 버튼을 로그아웃 버튼으로 변경
+            } else {
+                console.log("User is signed out.");
+                // 여기에 로그아웃된 사용자 UI 업데이트 로직 추가 가능
+            }
+        });
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -64,7 +121,8 @@
                 <img src="/image/logo.webp" alt="NMATE 진로 로고" class="h-12">
             </div>
             <div class="flex items-center space-x-3">
-                <button class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
+                <!-- 로그인 버튼 클릭 시 nmate.kr/login으로 이동 -->
+                <button id="loginButton" class="text-sm font-semibold text-nmate-dark-gray px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-50">로그인</button>
                 <button class="text-xl nmate-green">⚙️</button> <!-- Settings icon -->
             </div>
         </header>
@@ -74,8 +132,13 @@
             <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 border border-gray-200">
                 <!-- Search input field with id for JavaScript access -->
                 <input type="text" id="searchInput" placeholder="관심 진로를 검색해보세요. (예: 개발자, 의사)" class="flex-grow bg-transparent outline-none text-base pl-2">
-                <!-- Search button with id for JavaScript access -->
-                <button id="searchButton" class="ml-2 nmate-green font-bold text-lg">🔍</button>
+                <!-- Search button with SVG icon -->
+                <button id="searchButton" class="ml-2 nmate-green font-bold text-lg p-1 rounded-full hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -170,6 +233,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
+            const loginButton = document.getElementById('loginButton');
 
             // Function to handle search
             const performSearch = () => {
@@ -189,6 +253,13 @@
                     performSearch();
                 }
             });
+
+            // "로그인" 버튼 클릭 시 nmate.kr/login으로 이동
+            if (loginButton) {
+                loginButton.addEventListener('click', () => {
+                    window.location.href = 'https://nmate.kr/login';
+                });
+            }
         });
     </script>
 </body>
